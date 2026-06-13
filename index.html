@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>图片缩小工具</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,sans-serif;background:#1a1a2e;color:#eee;min-height:100vh;display:flex;flex-direction:column;align-items:center;padding:20px}
+h1{font-size:20px;margin-bottom:8px;color:#ffb347}
+.sub{font-size:13px;color:#888;margin-bottom:20px}
+.ua{width:100%;max-width:400px;border:2px dashed #ffb347;border-radius:12px;padding:40px 20px;text-align:center;margin-bottom:20px;cursor:pointer}
+.ua:active{background:rgba(255,179,71,0.1)}
+.ctl{width:100%;max-width:400px;display:none;flex-direction:column;gap:14px}
+.ctl.show{display:flex}
+label{font-size:14px;color:#ccc;display:block;margin-bottom:4px}
+input[type=number]{width:100%;padding:12px;border-radius:8px;border:1px solid #444;background:#16213e;color:#eee;font-size:16px}
+.row{display:flex;gap:12px}.row>div{flex:1}
+.ms{display:flex;gap:8px}
+.mb{flex:1;padding:10px;border-radius:8px;border:2px solid #333;background:#16213e;color:#888;font-size:13px;text-align:center;cursor:pointer}
+.mb.on{border-color:#ffb347;background:rgba(255,179,71,0.15);color:#ffb347}
+.pr{display:flex;gap:8px;flex-wrap:wrap}
+.pb{padding:8px 14px;font-size:13px;background:#16213e;color:#ccc;border:1px solid #333;border-radius:8px;cursor:pointer}
+.pb.on{background:rgba(255,179,71,0.15);color:#ffb347;border-color:#ffb347}
+.rb{width:100%;padding:14px;border:none;border-radius:10px;background:#ffb347;color:#1a1a2e;font-size:16px;font-weight:bold;cursor:pointer}
+.rb:active{background:#ffa030}
+.pv{width:100%;max-width:400px;margin-top:16px;display:none}
+.pv.show{display:block}
+.pvb{background:#16213e;border-radius:8px;padding:16px;display:flex;gap:16px}
+.pi{text-align:center;flex:1}
+.pi img{max-width:100%;border-radius:8px;border:1px solid #333}
+.pi .l{font-size:12px;color:#888;margin-bottom:4px}
+.pi .d{font-size:11px;color:#666;margin-top:4px}
+#dl{display:none;margin-top:12px}.dl2{display:block!important}
+</style>
+</head>
+<body>
+<h1>🎨 图片缩小工具 v3</h1>
+<p class="sub">大图也能缩！两种模式可选</p>
+<div class="ua" id="ua" onclick="document.getElementById('fi').click()">
+<p>📁 点击选择图片</p>
+<p style="font-size:12px;color:#888">支持 PNG / JPG</p>
+<input type="file" id="fi" accept="image/*" style="display:none">
+</div>
+<div class="ctl" id="ctl">
+<div>
+<label>缩放模式</label>
+<div class="ms">
+<div class="mb on" id="ms1" onclick="setMode(1)">平滑缩小<br><span style="font-size:11px;color:#666">大图缩小不糊</span></div>
+<div class="mb" id="ms2" onclick="setMode(0)">像素画缩小<br><span style="font-size:11px;color:#666">保留像素边</span></div>
+</div>
+</div>
+<div>
+<label>目标尺寸</label>
+<div class="pr">
+<div class="pb" onclick="setS(32,32,this)">32</div>
+<div class="pb" onclick="setS(64,64,this)">64</div>
+<div class="pb on" onclick="setS(96,96,this)">96</div>
+<div class="pb" onclick="setS(128,128,this)">128</div>
+<div class="pb" onclick="setS(256,256,this)">256</div>
+<div class="pb" onclick="setS(512,512,this)">512</div>
+</div>
+</div>
+<div class="row">
+<div><label>宽 (px)</label><input type="number" id="w" value="96" min="1"></div>
+<div><label>高 (px)</label><input type="number" id="h" value="96" min="1"></div>
+</div>
+<button class="rb" onclick="go()">✨ 缩小！</button>
+</div>
+<div class="pv" id="pv">
+<div class="pvb">
+<div class="pi"><div class="l">原图</div><img id="oi" style="max-height:150px"><div class="d" id="od"></div></div>
+<div class="pi"><div class="l">缩小后</div><img id="ri" style="max-width:150px"><div class="d" id="rd"></div></div>
+</div>
+<a id="dl" href="#" download="resized.png"><button class="rb" style="margin-top:12px">⬇️ 保存图片</button></a>
+</div>
+<script>
+var oi=null,mode=1;
+function setMode(m){mode=m;document.getElementById('ms1').className='mb'+(m?' on':'');document.getElementById('ms2').className='mb'+(!m?' on':'')}
+function setS(w,h,t){document.getElementById('w').value=w;document.getElementById('h').value=h;document.querySelectorAll('.pb').forEach(function(b){b.className='pb'});t.className='pb on'}
+document.getElementById('fi').addEventListener('change',function(e){var f=e.target.files[0];if(!f)return;var r=new FileReader();r.onload=function(ev){var img=new Image();img.onload=function(){oi=img;document.getElementById('w').value=Math.min(img.width,96);document.getElementById('h').value=Math.min(img.height,96);document.getElementById('ctl').className='ctl show';document.getElementById('ua').innerHTML='<p>✅ 已加载: '+img.width+' x '+img.height+'</p><p style="font-size:12px;color:#888">点击重新选择</p><input type="file" id="fi" accept="image/*" style="display:none">';document.getElementById('fi').addEventListener('change',arguments.callee.caller)};img.src=ev.target.result};r.readAsDataURL(f)});
+function stepDown(src,tw,th,sm){var c=document.createElement('canvas');c.width=tw;c.height=th;var cx=c.getContext('2d');cx.imageSmoothingEnabled=sm;if(sm)cx.imageSmoothingQuality='high';cx.drawImage(src,0,0,tw,th);return c}
+function go(){if(!oi)return;var w=parseInt(document.getElementById('w').value),h=parseInt(document.getElementById('h').value),sw=oi.width,sh=oi.height,sm=(mode===1);var cc=document.createElement('canvas');cc.width=sw;cc.height=sh;cc.getContext('2d').drawImage(oi,0,0);var cw=sw,ch=sh;if(sm){while(cw>w*2&&ch>h*2){cw=Math.floor(cw/2);ch=Math.floor(ch/2);cc=stepDown(cc,cw,ch,true)}cc=stepDown(cc,w,h,true)}else{if(sw>w*4){while(cw>w*4&&ch>h*4){cw=Math.floor(cw/2);ch=Math.floor(ch/2);cc=stepDown(cc,cw,ch,true)}cc=stepDown(cc,w*2,h*2,true)}cc=stepDown(cc,w,h,false)}var du=cc.toDataURL('image/png');document.getElementById('oi').src=oi.src;document.getElementById('od').textContent=sw+' x '+sh;document.getElementById('ri').src=du;document.getElementById('rd').textContent=w+' x '+h;document.getElementById('dl').href=du;document.getElementById('dl').className='dl2';document.getElementById('pv').className='pv show'}
+</script>
+</body>
+</html>
