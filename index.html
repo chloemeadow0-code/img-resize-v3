@@ -9,7 +9,7 @@
 body{font-family:-apple-system,sans-serif;background:#1a1a2e;color:#eee;min-height:100vh;display:flex;flex-direction:column;align-items:center;padding:20px}
 h1{font-size:20px;margin-bottom:8px;color:#ffb347}
 .sub{font-size:13px;color:#888;margin-bottom:20px}
-.ua{width:100%;max-width:400px;border:2px dashed #ffb347;border-radius:12px;padding:40px 20px;text-align:center;margin-bottom:20px;cursor:pointer}
+.ua{width:100%;max-width:400px;border:2px dashed #ffb347;border-radius:12px;padding:40px 20px;text-align:center;margin-bottom:20px;cursor:pointer;position:relative}
 .ua:active{background:rgba(255,179,71,0.1)}
 .ctl{width:100%;max-width:400px;display:none;flex-direction:column;gap:14px}
 .ctl.show{display:flex}
@@ -35,12 +35,12 @@ input[type=number]{width:100%;padding:12px;border-radius:8px;border:1px solid #4
 </style>
 </head>
 <body>
-<h1>🎨 图片缩小工具 v3</h1>
+<h1>🎨 图片缩小工具</h1>
 <p class="sub">大图也能缩！两种模式可选</p>
-<div class="ua" id="ua" onclick="document.getElementById('fi').click()">
-<p>📁 点击选择图片</p>
-<p style="font-size:12px;color:#888">支持 PNG / JPG</p>
 <input type="file" id="fi" accept="image/*" style="display:none">
+<div class="ua" id="ua" onclick="document.getElementById('fi').click()">
+<p id="uat">📁 点击选择图片</p>
+<p style="font-size:12px;color:#888">支持 PNG / JPG</p>
 </div>
 <div class="ctl" id="ctl">
 <div>
@@ -78,7 +78,7 @@ input[type=number]{width:100%;padding:12px;border-radius:8px;border:1px solid #4
 var oi=null,mode=1;
 function setMode(m){mode=m;document.getElementById('ms1').className='mb'+(m?' on':'');document.getElementById('ms2').className='mb'+(!m?' on':'')}
 function setS(w,h,t){document.getElementById('w').value=w;document.getElementById('h').value=h;document.querySelectorAll('.pb').forEach(function(b){b.className='pb'});t.className='pb on'}
-document.getElementById('fi').addEventListener('change',function(e){var f=e.target.files[0];if(!f)return;var r=new FileReader();r.onload=function(ev){var img=new Image();img.onload=function(){oi=img;document.getElementById('w').value=Math.min(img.width,96);document.getElementById('h').value=Math.min(img.height,96);document.getElementById('ctl').className='ctl show';document.getElementById('ua').innerHTML='<p>✅ 已加载: '+img.width+' x '+img.height+'</p><p style="font-size:12px;color:#888">点击重新选择</p><input type="file" id="fi" accept="image/*" style="display:none">';document.getElementById('fi').addEventListener('change',arguments.callee.caller)};img.src=ev.target.result};r.readAsDataURL(f)});
+document.getElementById('fi').addEventListener('change',function(e){var f=e.target.files[0];if(!f)return;var r=new FileReader();r.onload=function(ev){var img=new Image();img.onload=function(){oi=img;document.getElementById('w').value=Math.min(img.width,96);document.getElementById('h').value=Math.min(img.height,96);document.getElementById('ctl').className='ctl show';document.getElementById('uat').textContent='✅ 已加载: '+img.width+' x '+img.height+'（点击换图）';e.target.value=''};img.src=ev.target.result};r.readAsDataURL(f)});
 function stepDown(src,tw,th,sm){var c=document.createElement('canvas');c.width=tw;c.height=th;var cx=c.getContext('2d');cx.imageSmoothingEnabled=sm;if(sm)cx.imageSmoothingQuality='high';cx.drawImage(src,0,0,tw,th);return c}
 function go(){if(!oi)return;var w=parseInt(document.getElementById('w').value),h=parseInt(document.getElementById('h').value),sw=oi.width,sh=oi.height,sm=(mode===1);var cc=document.createElement('canvas');cc.width=sw;cc.height=sh;cc.getContext('2d').drawImage(oi,0,0);var cw=sw,ch=sh;if(sm){while(cw>w*2&&ch>h*2){cw=Math.floor(cw/2);ch=Math.floor(ch/2);cc=stepDown(cc,cw,ch,true)}cc=stepDown(cc,w,h,true)}else{if(sw>w*4){while(cw>w*4&&ch>h*4){cw=Math.floor(cw/2);ch=Math.floor(ch/2);cc=stepDown(cc,cw,ch,true)}cc=stepDown(cc,w*2,h*2,true)}cc=stepDown(cc,w,h,false)}var du=cc.toDataURL('image/png');document.getElementById('oi').src=oi.src;document.getElementById('od').textContent=sw+' x '+sh;document.getElementById('ri').src=du;document.getElementById('rd').textContent=w+' x '+h;document.getElementById('dl').href=du;document.getElementById('dl').className='dl2';document.getElementById('pv').className='pv show'}
 </script>
